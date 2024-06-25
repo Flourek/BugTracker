@@ -1,0 +1,12 @@
+<a{% for attr, value  in options %} {{ attr }}="{{ value }}"{% endfor %}>
+        {% if sorted %}
+            {% if direction == 'desc' %}
+                \/
+            {% else %}
+                /\
+            {% endif %}
+        {% else %}
+            /\
+        {% endif %}
+{{ title }}
+</a>

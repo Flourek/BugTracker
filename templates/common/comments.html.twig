@@ -1,0 +1,38 @@
+ {% if app.user %}
+    <div class="comment-post">
+        
+        <form method="POST">
+            <textarea id="{{form.body.vars.id}}" name="{{form.body.vars.full_name}}" class="form-control comment-textbox mt-1 mb-2"  rows=1
+                      placeholder="{{'Add a comment...'|trans}}"></textarea>
+            <button id="{{form.save.vars.id}}" name="{{form.save.vars.full_name}}" class="btn  btn-primary btn-block" type="submit">
+                  {{'Post'|trans}}
+            </button>
+
+            {{ form_widget(form._token) }}
+        </form>
+    </div>
+{% else %}
+    {{'Login to post comments.'|trans}}
+{% endif %}
+
+<hr class="hr"> 
+
+
+<div class="comment">
+    {% for comment in comments|reverse %}
+        <small> 
+            {{'User'|trans}} 
+        </small>
+        
+        {% include 'common/username.html.twig' with {'user' : comment.author} %}
+
+        <small> {{'posted at'|trans}} 
+            {{ comment.createdAt|date("H:i | d/m/Y") }} 
+        </small>
+        
+        <span class="comment-body ms-3 mt-1"> {{ comment.body }} </span>
+        <hr class="hr"> 
+        
+        
+    {% endfor %}
+</div>  

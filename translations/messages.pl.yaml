@@ -1,0 +1,83 @@
+# navbar
+Logged in as: Zalogowany jako
+Sign in: Zaloguj
+Logout: Wyloguj
+Profile: Profil
+
+# user
+Overview of user: Przegląd użytkownika
+in response to: w odpowiedzi na
+Submitted comments: Komentarze
+Assigned to: Przydzielony do
+Reported issues: Zgłoszenia
+Posted at: Zapostował(a) o
+
+# login
+Already have an account?: Masz już konto?
+Register an Account: Zarejestruj nowe konto
+You are logged in as: Zalogowany jako
+Create an Account: Zarejestruj sie
+Repeat Password: Powtórz hasło
+Username: Nazwa użytkownika
+Please sign in: Zaloguj się
+Register: Zarejestuj
+...or: ...lub
+Password: Hasło
+
+# register
+Hasła nie są takie same : Hasła nie są takie same
+Hasło ma mieć przynajmniej 6 znaków :	Hasło ma mieć przynajmniej 6 znaków
+
+# report
+Write a descriptive title: Napisz trafny tytuł
+Describe the issue...: Opisz problem...
+Report a new Issue: Nowe zgłoszenie
+Attachments: Załączniki
+Submit: Wyślij
+Title: Tytuł
+
+# status
+Unresolved: Nierozwiązane
+Resolved: Rozwiązane
+Closed: Zamknięte
+
+# main
+Sort by: Sortuj według
+Report an Issue: Zgłoś problem
+Date Created: Daty stworzenia
+Date Updated: Data aktualizacji
+
+
+Affects versions: Dotyczy wersji
+Enviroment: Środowisko
+Comments: Komentarze
+Reporter: Zgłosiciel
+Assigned: Przypisani
+Description: Opis
+Details: Sczegóły
+Status: Status
+People: Ludzie
+
+No attachments: Brak załączników
+Assign users to task: Przypisz użytkowników do zadania
+Assign a new user: Przypisz nowego użytkownika
+This user is already assigned!: Ten użytkownik jest już przypisany.
+This user doesn't exist!: Ten użytkownik nie istnieje.
+Control Panel: Panel Kontrolny
+Change Status: Zmień status zgłoszenia
+Assign: Przypisz
+Cancel: Koniec
+
+# edit
+Edit Issue: Edytuj zgłoszenie
+Save: Zapisz
+Edit: Edytuj
+Delete: Usuń
+You sure: Czy aby napewno
+
+# comments
+Login to post comments.: Zaloguj sie, aby móc dodawać komentarze.
+Add a comment...: Dodaj komentarz...
+posted at: zapostował(a) o
+User: Użytkownik
+Post: Zapostuj

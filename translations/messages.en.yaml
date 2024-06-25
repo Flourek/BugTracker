@@ -1,0 +1,61 @@
+Username already taken                          : Username already taken
+Please enter a password                         : Please enter a password
+Password at least {{ limit }} characters long   : Password at least {{ limit }} charact...
+Report an Issue                                 : Report an Issue
+Sort by                                         : Sort by
+Date Created                                    : Date Created
+Status                                          : Status
+Details                                         : Details
+Enviroment                                      : Enviroment
+Affects versions                                : Affects versions
+Description                                     : Description
+Attachments                                     : Attachments
+No attachments                                  : No attachments
+Comments                                        : Comments
+People                                          : People
+Reporter                                        : Reporter
+Assigned                                        : Assigned
+Assign a new user                               : Assign a new user
+Assign                                          : Assign
+Cancel                                          : Cancel
+Control Panel                                   : Control Panel
+Edit                                            : Edit
+You sure                                        : You sure
+Delete                                          : Delete
+Assign users to task                            : Assign users to task
+Change Status                                   : Change Status
+Register an Account                             : Register an Account
+Already have an account?                        : Already have an account?
+Sign in                                         : Sign in
+Register                                        : Register
+Logged in as                                    : Logged in as
+Profile                                         : Profile
+Logout                                          : Logout
+Add a comment...                                : Add a comment...
+Post                                            : Post
+Login to post comments.                         : Login to post comments.
+User                                            : User
+posted at                                       : posted at
+Report a new Issue                              : Report a new Issue
+Title                                           : Title
+Write a descriptive title                       : Write a descriptive title
+Describe the issue...                           : Describe the issue...
+Submit                                          : Submit
+You are logged in as                            : You are logged in as
+Please sign in                                  : Please sign in
+Username                                        : Username
+Password                                        : Password
+...or                                           : ...or
+Create an Account                               : Create an Account
+Overview of user                                : Overview of user
+Reported issues                                 : Reported issues
+Submitted comments                              : Submitted comments
+Posted at                                       : Posted at
+Assigned to                                     : Assigned to
+Edit Issue                                      : Edit Issue
+Save                                            : Save
+Unresolved                                      : Unresolved
+Resolved                                        : Resolved
+Closed                                          : Closed
+in response to                                  : in response to
+Password at least 6 characters long             : Password at least 6 characters long

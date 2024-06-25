@@ -1,0 +1,25 @@
+
+{% set StatusEnum = enum('\\App\\Type\\StatusEnum') %}
+
+{% set status = StatusEnum.intToKey(status) %}
+
+{% if short is defined %}
+     {% set text = "" %}
+{% else %}
+    {% set text = status.value  %}
+{% endif %}
+
+
+
+{% if status == StatusEnum.RESOLVED %}
+    {% set color = 'bg-success' %}
+{% elseif status == StatusEnum.CLOSED   %}
+    {% set color = 'bg-purple' %}
+{% elseif status == StatusEnum.UNRESOLVED   %}
+    {% set color = 'bg-orange' %}
+{% endif %}
+
+<span class="{{color}} text-white rounded px-2"> {{ text|trans }} </span>
+
+
+

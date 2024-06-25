@@ -1,0 +1,6 @@
+Username already taken                          : Nazwa użytkownika jest zajęta
+Please enter a password                         : Proszę podać hasło
+Password at least {{ limit }} characters long   : Hasło ma mieć przynajmniej {{ limit }} znaków
+The password fields must match                  : Hasła nie są takie same
+Password                                        : Hasło
+Repeat Password                                 : Powtórz hasło

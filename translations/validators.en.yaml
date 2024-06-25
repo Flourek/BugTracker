@@ -1,0 +1,6 @@
+Username already taken                          : Username already taken
+Please enter a password                         : Please enter a password
+Password at least {{ limit }} characters long   : Password at least {{ limit }} characters long
+The password fields must match                  : The password fields must match
+Password                                        : Password
+Repeat Password                                 : Repeat Password

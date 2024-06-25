@@ -1,0 +1,25 @@
+
+
+#cat{
+  position: relative;
+  top: 282px;
+  left: 216px;
+}
+
+
+#text{
+  font-size: 300px;
+}
+
+#bubel-img{
+  position: absolute;
+  left: 87px;
+  top: -90px;
+}
+
+#bubel-text{
+  position: absolute;
+  left: 106px;
+  width: 166px;
+  top: -54px;
+}
