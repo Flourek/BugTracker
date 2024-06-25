@@ -2,7 +2,7 @@
 
 PHP >8.3.4, Symfony >6.4.8
  
-* cd website
+* cd Bugtracker
 *	composer install
 *	Wybrać odpowiednią bazę danych w .env
 *	php bin/console make:migration
