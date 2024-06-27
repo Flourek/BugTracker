@@ -100,14 +100,13 @@ class AppFixtures extends Fixture
                 $user->setUsername($this->faker->userName());
                 $user->setPassword('haslo');
                 $manager->persist($user);
-                
+
                 $comment = new Comment();
                 $comment->setBody($this->faker->sentence(20));
                 $comment->setAuthor($user);
                 $comment->setCreatedAt(new \DateTimeImmutable('now'));
                 $comment->setBug($bug);
                 $manager->persist($comment);
-                
             }
 
             $manager->persist($bug);
