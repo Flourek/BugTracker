@@ -54,13 +54,16 @@ $('#form_username').keydown(
 
 $('.user-unassign').on(
     'click', function () {
-        $('#form_toDelete').val($(this).attr("data"));
+        $('#assign_toDelete').val($(this).attr("data"));
+        $('#assignForm').submit();
     }
 );
+$('#assign_toDelete').val("admin");
 
 $('.status-button').on(
     'click', function () {
-        $('#form_value').val($(this).attr("data"));
+        $('#status_value').val($(this).attr("data"));
+        $('#statusForm').submit();
     }
 );
 

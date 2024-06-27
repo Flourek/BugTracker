@@ -27,44 +27,11 @@ class EnumExtension extends AbstractExtension
     /**
      * @param string $enumFQN fqn
      *
-     * @return object proxy
-     *                creates proxy
+     * @return object|Proxy idk
+     *                      creats proxy
      */
     public function createProxy(string $enumFQN): object
     {
-        return new class ($enumFQN) {
-            /**
-             * @param string $enum
-             *                     constructor  class
-             */
-            public function __construct(private readonly string $enum)
-            {
-                if (!enum_exists($this->enum)) {
-                    throw new \InvalidArgumentException("$this->enum is not an Enum type and cannot be used in this function");
-                }
-            }
-
-            /**
-             * @param string $name      name
-             * @param array  $arguments args
-             *
-             * @return mixed
-             *               profixy
-             */
-            public function __call(string $name, array $arguments)
-            {
-                $enumFQN = sprintf('%s::%s', $this->enum, $name);
-
-                if (defined($enumFQN)) {
-                    return constant($enumFQN);
-                }
-
-                if (method_exists($this->enum, $name)) {
-                    return $this->enum::$name(...$arguments);
-                }
-
-                throw new \BadMethodCallException("Neither \"{$enumFQN}\" nor \"{$enumFQN}::{$name}()\" exist in this runtime.");
-            }
-        };
+        return new Proxy($enumFQN);
     }
 }

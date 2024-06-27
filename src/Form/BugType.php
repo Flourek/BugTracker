@@ -8,7 +8,6 @@ namespace App\Form;
 use App\Entity\Bug;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -22,16 +21,15 @@ class BugType extends AbstractType
      * @param array                $options options
      *
      * @return void void
-     *              builds the form for reporting new bug
+     *              builds the form for reporting a new bug
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('title', null, ['attr' => ['autocomplete' => 'new-password', 'class' => 'form-control']])
-            ->add('body')
-            ->add('enviroment', null, ['attr' => ['class' => 'form-control']])
+            ->add('environment', null, ['attr' => ['class' => 'form-control']])
             ->add('version', null, ['attr' => ['class' => 'form-control']])
-            ->add('body')
+            ->add('body', null, ['attr' => ['class' => 'form-control']])
             ->add(
                 'imageFiles',
                 FileType::class,
@@ -45,12 +43,6 @@ class BugType extends AbstractType
                         'class' => 'form-control',
                     ],
                 ]
-            )
-            ->add(
-                'save',
-                SubmitType::class,
-                [
-                    'attr' => ['class' => 'save']]
             );
     }
 

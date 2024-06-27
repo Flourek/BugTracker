@@ -29,7 +29,7 @@ class ReportController extends AbstractController
     {
         $bug = new Bug();
 
-        $this->denyAccessUnlessGranted('create', $bug);
+        $this->denyAccessUnlessGranted('CREATE', $bug);
 
         $form = $this->createForm(BugType::class, $bug);
 
@@ -40,7 +40,7 @@ class ReportController extends AbstractController
             $bug = $bugService->create($this->getUser(), $bug, $uploadedFiles);
 
             // redirect to the newly created post
-            return $this->redirectToRoute('main_index', ['id' => $bug->getId()]);
+            return $this->redirectToRoute('main_index', ['bugID' => $bug->getId()]);
         }
 
         return $this->render('report.html.twig', [

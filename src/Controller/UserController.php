@@ -5,7 +5,7 @@
 
 namespace App\Controller;
 
-use App\Repository\UserRepository;
+use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -15,22 +15,23 @@ use Symfony\Component\HttpFoundation\Response;
 class UserController extends AbstractController
 {
     /**
-     * @param UserRepository $rep      rep
-     * @param string         $username the username of the user in question
+     * @param string      $username    the username of the user in question
+     * @param UserService $userService user service
      *
      * @return Response http
      *
      * Index action
      */
     #[\Symfony\Component\Routing\Attribute\Route('/user/{username}', name: 'user_index', defaults: ['username' => ''])]
-    public function index(UserRepository $rep, string $username): Response
+    public function index(string $username, UserService $userService): Response
     {
-        $user = '' === $username || '0' === $username ? $this->getUser() : $rep->findOneByUsername($username);
+        $this->denyAccessUnlessGranted('ROLE_USER');
+
+        $user = '' === $username || '0' === $username ? $this->getUser() : $userService->findByUsername($username);
+        $acivity = [];
 
         if (isset($user)) {
-            $comments = $user->getComments();
-            $bugs = $user->getBugs();
-            $assigned = $user->getAssignedTo();
+            $acivity = $userService->getActivity($user);
         } else {
             return $this->redirectToRoute('not_found_index');
         }
@@ -39,9 +40,9 @@ class UserController extends AbstractController
             'user.html.twig',
             [
                 'user' => $user,
-                'comments' => $comments,
-                'bugs' => $bugs,
-                'assigned' => $assigned,
+                'comments' => $acivity['comments'],
+                'bugs'     => $acivity['bugs'],
+                'assigned' => $acivity['assigned'],
             ]
         );
     }

@@ -31,15 +31,18 @@ class AssignService
     }
 
     /**
-     * @param User|null $user user to add
-     * @param Bug       $bug  bug to add user to
+     * assign new user to a bug.
      *
-     * @return string|null error
+     * @param string $username username
+     * @param int    $bugID    bug id
      *
-     * assign new user to a bug
+     * @return string error
      */
-    public function add(?User $user, Bug $bug): ?string
+    public function add(string $username, int $bugID): ?string
     {
+        $user = $this->userRep->findOneBy(['username' => $username]);
+        $bug = $this->bugRep->findOneBy(['id' => $bugID]);
+
         if (isset($user)) {
             if ($bug->isAssigned($user)) {
                 return 'This user is already assigned!';
@@ -56,15 +59,21 @@ class AssignService
     }
 
     /**
-     * @param User $user user to remove
-     * @param Bug  $bug  bug to remove user from
+     * unassign a user from the bug.
      *
-     * @return void
-     *              unassign a user from the bug
+     * @param int $userID user id
+     * @param int $bugID  bug id
+     *
+     * @return void e
      */
-    public function remove(User $user, Bug $bug): void
+    public function remove(int $userID, int $bugID): void
     {
-        $bug->removeAssigned($user);
-        $this->bugRep->save($bug, true);
+        $user = $this->userRep->findOneBy(['id' => $userID]);
+        $bug = $this->bugRep->findOneBy(['id' => $bugID]);
+
+        if (isset($user) && isset($bug)) {
+            $bug->removeAssigned($user);
+            $this->bugRep->save($bug, true);
+        }
     }
 }

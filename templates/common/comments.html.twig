@@ -1,15 +1,14 @@
- {% if app.user %}
+ {% if is_granted('COMMENT', activeBug) %}
     <div class="comment-post">
-        
-        <form method="POST">
-            <textarea id="{{form.body.vars.id}}" name="{{form.body.vars.full_name}}" class="form-control comment-textbox mt-1 mb-2"  rows=1
-                      placeholder="{{'Add a comment...'|trans}}"></textarea>
-            <button id="{{form.save.vars.id}}" name="{{form.save.vars.full_name}}" class="btn  btn-primary btn-block" type="submit">
-                  {{'Post'|trans}}
+        <form name="comment" method="POST" action="{{path('comment', {'bugID': activeBug.id})}}">
+            <textarea id="{{commentForm.body.vars.id}}" name="{{commentForm.body.vars.full_name}}" class="form-control comment-textbox mt-1 mb-2"  rows=1 placeholder="{{'Add a comment...'|trans}}" autocomplete="off"></textarea>
+            <button  class="btn  btn-primary btn-block" type="submit">
+                {{'Post'|trans}}
             </button>
-
-            {{ form_widget(form._token) }}
+       
+            {{ form_widget(commentForm._token) }}
         </form>
+
     </div>
 {% else %}
     {{'Login to post comments.'|trans}}

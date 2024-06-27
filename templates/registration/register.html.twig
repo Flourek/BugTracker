@@ -40,10 +40,6 @@
 
 
         {{ form_row(registrationForm.username) }}
-
-{#        {{ form_label(registrationForm.plainPassword, 'Password') }}#}
-{#        {{ form_widget(registrationForm.plainPassword) }}#}
-
         {{ form_label(registrationForm.plainPassword.first, 'Password') }}
         {{ form_widget(registrationForm.plainPassword.first) }}
         {{ form_label(registrationForm.plainPassword.second, 'Repeat Password') }}

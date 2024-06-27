@@ -63,7 +63,7 @@
 							<div id="bugs-container">
 
 									{% for bug in pagination.items %}
-											<a href="{{ path('main_index', {id: bug.id}) }}" rel="keep-params">
+											<a href="{{ path('main_index', {bugID: bug.id}) }}" rel="keep-params">
 											<div class="sidebar-item {{ (bug.id == activeBug.id) ? 'active' : '' }}">
 
 												{% include 'common/status.html.twig' with {'status' : bug.status, 'short' : 1} %}
@@ -107,8 +107,8 @@
 
 						<div class="collapse-text show" id="collapseDetails">
 							<div class="row">
-								<div class="col-lg-3 col-md-6 col-6 gray">{{ 'Enviroment'|trans }}:</div>
-								<div class="col-lg-3 col-md-6 col-6 ">{{ activeBug.enviroment }}</div>
+								<div class="col-lg-3 col-md-6 col-6 gray">{{ 'Environment'|trans }}:</div>
+								<div class="col-lg-3 col-md-6 col-6 ">{{ activeBug.environment }}</div>
 							</div>
 							<div class="row">
 								<div class="col-lg-3 col-md-6 col-6  gray">{{ 'Affects versions'|trans }}:</div>
@@ -199,12 +199,12 @@
 
 								<div class="col-lg-8">
 
-									{% if assigning and is_granted('edit', activeBug) %}
-										<form method="POST" autocomplete="off" id="assignForm">
+									{% if assigning and is_granted('ASSIGN', activeBug) %}
+										<form method="POST" action="{{path('assign', {'bugID': activeBug.id})}}" autocomplete="off" id="assignForm">
 											{% for u in assignedUsers %}
-												<button	data="{{ u.id }}" type="submit"
-														class="btn btn-danger user-unassign py-0 px-1">x
-												</button>
+												<div data="{{ u.id }}"   class="btn btn-danger user-unassign align-text-bottom pt-2 px-1">
+													x
+												</div>
 												{% include 'common/username.html.twig' with {'user' : u} %}
 
 												<br>
@@ -212,26 +212,22 @@
 
 											<br>
 
-
 											{{ 'Assign a new user'|trans }}:
 
-											<input	type="text" id="form_username" name="form[username]"
+											<input	type="text" id="assign_username" name="assign[username]"
 													class="form-control"
 													autocomplete="off" value="">
 
-											<button	id="{{ assignForm.save.vars.id }}"
-													name="{{ assignForm.save.vars.name }}"
-													class="btn  btn-primary btn-block" type="submit"
-													href="{{ path('main_index') }}">
+											<button  class="btn  btn-primary btn-block" type="submit" >
 												{{ 'Assign'|trans }}
 											</button>
 
 											<a	type="button" class="btn btn-primary my-2"
-												href="{{ path('main_index', {id: activeBug.id}) }}">
+												href="{{ path('main_index', {bugID: activeBug.id}) }}">
 												{{ 'Cancel'|trans }}
 											</a>
 
-											<input type="text" id="form_toDelete" name="form[toDelete]" hidden value="">
+											<input type="text" id="assign_toDelete" name="assign[toDelete]" hidden  value="">
 
 											{% if assignFormError %}
 												<div class="text-danger mb-2"> {{ assignFormError|trans }} </div>
@@ -251,9 +247,9 @@
 							</div>
 						</div>
 
-{# Admin's control panel for status and assigning users                        #}
+						{# Admin's control panel for status and assigning users                        #}
 
-						{% if is_granted('edit', activeBug) %}
+						{% if is_granted('EDIT', activeBug) %}
 
 							<a	class="btn collapse-title mt-5" data-bs-toggle="collapse" href="#collapseControl"
 								role="button" aria-expanded="true" aria-controls="collapseControl">
@@ -262,57 +258,66 @@
 
 							<div class="collapse-text show" id="collapseControl">
 
-                                <a type="button" class="btn btn-success  py-1 px-2 mt-2" href="{{path('edit_index', {id: activeBug.id})}}">
+                                <a type="button" class="btn btn-success  py-1 px-2 mt-2" href="{{path('edit_index', {bugID: activeBug.id})}}">
                                     {{ 'Edit'|trans }}
                                 </a>
-
-
-
-                                {% if confirm_delete %}
-                                    <a type="button" class="btn btn-danger py-1 px-2 mt-2" href="{{path('edit_delete', {id: activeBug.id})}}" rel="keep-params">
-                                        {{ 'You sure'|trans }}?
-                                    </a>
-                                    <a type="button" class="btn btn-light border py-1 px-2 mt-2" href="{{path('main_index', {id: activeBug.id})}}" rel="keep-params">
-                                        X
-                                    </a>
-                                {% else %}
-                                    <a type="button" class="btn btn-danger py-1 px-2 mt-2" href="?confirm=1" rel="keep-params">
-                                        {{ 'Delete'|trans }}
-                                    </a>
-
-                                {% endif %}
-
-                                <br>
-
-                                {% if is_granted('assign', activeBug) %}
-                                    <a type="button" class="btn btn-primary w-50 py-1 px-2 mt-2" href="?assigning=1">
-                                        {{ 'Assign users to task'|trans }}
-                                    </a>
-                                {% endif %}
-
-
-								<form name="statusForm" method="post">
-
-									{{form_widget(statusForm.value)}}
-
-									<a class="btn bg-primary text-white w-50 py-1 px-2 mt-3 dropdown-toggle dropdown-menu-right " href="#" role="button" id="dropdownMenuLink" data-bs-toggle='dropdown' aria-haspopup="true" aria-expanded="false">
-										{{'Change Status'|trans}}
-									</a>
-
-									<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
-
-										{% for status in range(0,2) %}
-											<button id="{{statusForm.saveStatus.vars.id}}"  name="{{statusForm.saveStatus.vars.name}}" data="{{status}}" class="change-status dropdown-item px-1 status-button"   type="submit">
-												{% include 'common/status.html.twig' with {'status' : status} %}
-											</button>
-										{% endfor %}
-
-									</div>
-
-									{{ form_widget(statusForm._token) }}
-								</form>
-							</div>
 						{% endif %}
+
+
+						{% if is_granted('DELETE', activeBug) %}
+
+							{% if confirm_delete %}
+								<form method="POST" action="{{path('edit_delete', {'bugID': activeBug.id})}}" >
+									<button type="submit" class="btn btn-danger py-1 px-2 mt-2" >
+										{{ 'You sure'|trans }}?
+									</button>
+									<a type="button" class="btn btn-light border py-1 px-2 mt-2" href="{{path('main_index', {bugID: activeBug.id})}}" rel="keep-params">
+										X
+									</a>
+								</form>
+
+							{% else %}
+								<br>
+								<a type="button" class="btn btn-danger py-1 px-2 mt-2" href="?confirm=1" rel="keep-params">
+									{{ 'Delete'|trans }}
+								</a>
+
+							{% endif %}
+
+						{% endif %}
+
+						<br>
+
+						{% if is_granted('ASSIGN', activeBug) %}
+							<a type="button" class="btn btn-primary w-50 py-1 px-2 mt-3" href="?assigning=1">
+								{{ 'Assign users to task'|trans }}
+							</a>
+						{% endif %}
+
+						{% if is_granted('CHANGE_STATUS', activeBug) %}
+						
+							<form method="POST" id="statusForm" name="statusForm" action="{{path('status', {'bugID': activeBug.id})}}" >
+								
+								{{form_widget(statusForm.value)}}
+								
+								<a class="btn bg-primary text-white w-50 py-1 px-2 mt-3 dropdown-toggle dropdown-menu-right " href="#" role="button" id="dropdownMenuLink" data-bs-toggle='dropdown' aria-haspopup="true" aria-expanded="false">
+									{{'Change Status'|trans}}
+								</a>
+								
+								<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+									
+									{% for status in range(0,2) %}
+									<button data="{{status}}" class="change-status dropdown-item px-1 status-button">
+										{% include 'common/status.html.twig' with {'status' : status} %}
+									</button>
+									{% endfor %}
+									
+								</div>
+								
+								{{ form_widget(statusForm._token) }}
+							</form>
+						{% endif %}
+						</div>
 					</div>
 				</div>
 				{% endif %}

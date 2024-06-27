@@ -18,7 +18,7 @@
                 <h1>{{'Edit Issue'|trans}}</h1>
                 <hr class="hr">
 
-                <form name="bug" method="post" enctype="multipart/form-data">
+                <form name="bug" method="POST" action="{{path('edit_edit', {'bugID': bug.id})}}" enctype="multipart/form-data">
 
                     {{'Title'|trans}}:
                     <input id="{{form.title.vars.id}}" name="{{form.title.vars.full_name}}" required type="text" class="form-control" id="basic-url"
@@ -27,8 +27,8 @@
 
                     <div class="row  mt-1 mb-2">
                         <div class="col-3  mb-3">
-                            {{'Enviroment'|trans}}:
-                            {{ form_widget(form.enviroment) }}
+                            {{'Environment'|trans}}:
+                            {{ form_widget(form.environment) }}
                         </div>
                         <div class="col-3">
                             {{'Affects versions'|trans}}:
@@ -46,7 +46,7 @@
 
 
                         <div class="float-end">
-                            <button id="{{form.save.vars.id}}" name="{{form.save.vars.name}}" class="btn  btn-primary btn-block" type="submit" href="main.html">{{'Save'|trans}}</button>
+                            <button  class="btn  btn-primary btn-block" type="submit" href="main.html">{{'Save'|trans}}</button>
                         </div>
                     </div>
 

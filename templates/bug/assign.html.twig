@@ -1,0 +1,35 @@
+<form method="POST" action="{{path('assign')}}" autocomplete="off" id="assignForm">
+    {% for u in assignedUsers %}
+        <div data="{{ u.id }}"   class="btn btn-danger user-unassign align-text-bottom pt-2 px-1">
+            x
+        </div>
+        {% include 'common/username.html.twig' with {'user' : u} %}
+
+        <br>
+    {% endfor %}
+
+    <br>
+
+    {{ 'Assign a new user'|trans }}:
+
+    <input	type="text" id="assign_username" name="assign[username]"
+            class="form-control"
+            autocomplete="off" value="">
+
+    <button  class="btn  btn-primary btn-block" type="submit" >
+        {{ 'Assign'|trans }}
+    </button>
+
+    <a	type="button" class="btn btn-primary my-2"
+        href="{{ path('main_index', {bugID: activeBug.id}) }}">
+        {{ 'Cancel'|trans }}
+    </a>
+
+    <input type="text" id="assign_toDelete" name="assign[toDelete]" hidden  value="e">
+
+    {% if assignFormError %}
+        <div class="text-danger mb-2"> {{ assignFormError|trans }} </div>
+    {% endif %}
+
+    {{ form_widget(assignForm._token) }}
+</form>

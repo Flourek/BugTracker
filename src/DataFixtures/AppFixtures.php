@@ -74,7 +74,7 @@ class AppFixtures extends Fixture
             $bug->setAuthor($user);
 
             $envs = ['Linux', 'Windows'];
-            $bug->setEnviroment($envs[array_rand($envs)]);
+            $bug->setEnvironment($envs[array_rand($envs)]);
             $versions = ['1.3.01', '1.3.02', '1.3.03', '1.3.07', '0.9.4', '0.9.5'];
             $bug->setVersion($versions[array_rand($versions)]);
             $bug->setStatus(StatusEnum::intToKey(random_int(0, 2)));

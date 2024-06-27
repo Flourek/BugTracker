@@ -48,7 +48,7 @@ class Bug
     private Collection $assigned;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $enviroment = null;
+    private ?string $environment = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $version = null;
@@ -246,19 +246,19 @@ class Bug
     /**
      * @return string|null gets the environment
      */
-    public function getEnviroment(): ?string
+    public function getEnvironment(): ?string
     {
-        return $this->enviroment;
+        return $this->environment;
     }
 
     /**
-     * @param string|null $enviroment sets the environment
+     * @param string|null $environment sets the environment
      *
      * @return $this THIS
      */
-    public function setEnviroment(?string $enviroment): self
+    public function setEnvironment(?string $environment): self
     {
-        $this->enviroment = $enviroment;
+        $this->environment = $environment;
 
         return $this;
     }

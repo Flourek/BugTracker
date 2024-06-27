@@ -27,7 +27,7 @@
                     {% for bug in bugs %}
                         <div id="text-container">
                             <b>BUG-{{ bug.id }}</b>
-                            <a class="primary bug-link" href="{{path('main_index', {id: bug.id})}}"> {{ bug.title }}</a>
+                            <a class="primary bug-link" href="{{path('main_index', {bugID: bug.id})}}"> {{ bug.title }}</a>
                         </div>
 
                         <hr class="hr"> 
@@ -47,7 +47,7 @@
                                  </small>
 
 
-                                 <a class="primary bug-link" href="{{path('main_index', {id: comment.bug.id})}}"> {{ comment.bug.title }}</a>
+                                 <a class="primary bug-link" href="{{path('main_index', {bugID: comment.bug.id})}}"> {{ comment.bug.title }}</a>
                                </div>
 
                                 <span class="comment-body ms-3"> {{ comment.body }} </span>
@@ -63,7 +63,7 @@
                     {% for bug in assigned %}
                         <div id="text-container">
                             <b>BUG-{{ bug.id }}</b>
-                            <a class="primary bug-link" href="{{path('main_index', {id: bug.id})}}"> {{ bug.title }}</a>
+                            <a class="primary bug-link" href="{{path('main_index', {bugID: bug.id})}}"> {{ bug.title }}</a>
                         </div>
                         <hr class="hr"> 
                     {% endfor %}

@@ -7,6 +7,7 @@ namespace App\Security;
 
 use App\Entity\Bug;
 use App\Entity\User;
+use App\Service\BugService;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\Security;
@@ -14,22 +15,27 @@ use Symfony\Component\Security\Core\Security;
 /**
  * Security voter class based on the bug entity.
  */
-class PostVoter extends Voter
+class BugVoter extends Voter
 {
     // these strings are just invented: you can use anything
-    public const CREATE = 'create';
-    public const VIEW = 'view';
-    public const EDIT = 'edit';
-    public const DELETE = 'delete';
-    public const COMMENT = 'comment';
-    public const ASSIGN = 'assign';
+    public const CREATE = 'CREATE';
+    public const VIEW = 'VIEW';
+    public const EDIT = 'EDIT';
+    public const DELETE = 'DELETE';
+    public const COMMENT = 'COMMENT';
+    public const ASSIGN = 'ASSIGN';
+    public const CHANGE_STATUS = 'CHANGE_STATUS';
+
+    private Bug $bug;
 
     /**
-     * @param Security $security auth
-     *                           Constructor
+     * @param Security   $security   auth
+     * @param BugService $bugService auth
+     *                               Constructor
      */
-    public function __construct(private Security $security)
+    public function __construct(private Security $security, private BugService $bugService)
     {
+        $this->bug = new Bug();
     }
 
     /**
@@ -41,13 +47,22 @@ class PostVoter extends Voter
     protected function supports(string $attribute, mixed $subject): bool
     {
         // if the attribute isn't one we support, return false
-        if (!in_array($attribute, [self::VIEW, self::EDIT, self::CREATE, self::DELETE, self::COMMENT, self::ASSIGN])) {
+        if (!in_array($attribute, [self::VIEW, self::EDIT, self::CREATE, self::DELETE, self::COMMENT, self::ASSIGN, self::CHANGE_STATUS])) {
             return false;
         }
 
-        // only vote on `Post` objects
         if (!$subject instanceof Bug) {
+            $id = intval($subject);
+
+            if (is_int($id)) {
+                $this->bug = $this->bugService->getBugByID($id);
+
+                return true;
+            }
+
             return false;
+        } else {
+            $this->bug = $subject;
         }
 
         return true;
@@ -64,21 +79,18 @@ class PostVoter extends Voter
     {
         $user = $token->getUser();
 
-        if ($this->security->isGranted('ROLE_ADMIN')) {
+        if ($this->security->isGranted('ROLE_SUPER_ADMIN')) {
             return true;
         }
 
-        // you know $subject is a Post object, thanks to `supports()`
-        /** @var Bug $bug */
-        $bug = $subject;
-
         return match ($attribute) {
             self::VIEW => $this->canView(),
-            self::CREATE => $this->canCreate($bug, $user),
-            self::EDIT => $this->canEdit($bug, $user),
-            self::DELETE => $this->canDelete($bug, $user),
-            self::COMMENT => $this->canComment($bug, $user),
-            self::ASSIGN => $this->canAssign($bug, $user),
+            self::CREATE => $this->canCreate($user),
+            self::EDIT => $this->canEdit($user),
+            self::DELETE => $this->canDelete($user),
+            self::COMMENT => $this->canComment($user),
+            self::ASSIGN => $this->canAssign($user),
+            self::CHANGE_STATUS => $this->canChangeStatus($user),
             default => throw new \LogicException('This code should not be reached!')
         };
     }
@@ -92,58 +104,62 @@ class PostVoter extends Voter
     }
 
     /**
-     * @param Bug       $bug  bug
      * @param User|null $user user
      *
      * @return bool permission
      */
-    private function canDelete(Bug $bug, ?User $user): bool
-    {
-        return $this->canEdit($bug, $user);
-    }
-
-    /**
-     * @param Bug       $bug  bug
-     * @param User|null $user user
-     *
-     * @return bool permission
-     */
-    private function canCreate(Bug $bug, ?User $user): bool
-    {
-        return (bool) $user;
-    }
-
-    /**
-     * @param Bug       $bug  bug
-     * @param User|null $user user
-     *
-     * @return bool permission
-     */
-    private function canComment(Bug $bug, ?User $user): bool
-    {
-        return $this->canCreate($bug, $user);
-    }
-
-    /**
-     * @param Bug       $bug  bug
-     * @param User|null $user user
-     *
-     * @return bool permission
-     */
-    private function canAssign(Bug $bug, ?User $user): bool
+    private function canDelete(?User $user): bool
     {
         return $this->security->isGranted('ROLE_ADMIN');
     }
 
     /**
-     * @param Bug       $bug  bug
      * @param User|null $user user
      *
      * @return bool permission
      */
-    private function canEdit(Bug $bug, ?User $user): bool
+    private function canCreate(?User $user): bool
     {
-        // this assumes that the Post object has a `getOwner()` method
-        return $user === $bug->getAuthor();
+        return (bool) $user;
+    }
+
+    /**
+     * @param User|null $user user
+     *
+     * @return bool permission
+     */
+    private function canComment(?User $user): bool
+    {
+        return $this->canCreate($user);
+    }
+
+    /**
+     * @param User|null $user user
+     *
+     * @return bool permission
+     */
+    private function canAssign(?User $user): bool
+    {
+        return $this->security->isGranted('ROLE_ADMIN');
+    }
+
+    /**
+     * @param User|null $user user
+     *
+     * @return bool permission
+     */
+    private function canChangeStatus(?User $user): bool
+    {
+        return $this->security->isGranted('ROLE_ADMIN');
+    }
+
+    /**
+     * @param User|null $user user
+     *
+     * @return bool permission
+     */
+    private function canEdit(?User $user): bool
+    {
+        return $user === $this->bug->getAuthor();
     }
 }

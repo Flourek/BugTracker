@@ -7,15 +7,15 @@ namespace App\Controller;
 
 use App\Entity\Comment;
 use App\Form\CommentType;
-use App\Repository\BugRepository;
-use App\Repository\UserRepository;
+use App\Form\AssignType;
+use App\Form\StatusType;
 use App\Service\AssignService;
+use App\Service\StatusService;
 use App\Service\BugService;
+use App\Entity\Bug;
 use App\Service\CommentService;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -25,134 +25,46 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  */
 class MainController extends AbstractController
 {
-    private AuthorizationCheckerInterface $authorizationChecker;
-    private UserRepository $userRep;
-
-    private BugService $bugService;
-    private CommentService $commentService;
-    private AssignService $assignService;
-
     /**
      * @param AuthorizationCheckerInterface $authorizationChecker auth
      * @param AssignService                 $assignService        service
      * @param CommentService                $commentService       service
      * @param BugService                    $bugService           service
-     * @param UserRepository                $userRep              rep
+     * @param StatusService                 $statusService        service
      *                                                            constructor
      */
-    public function __construct(AuthorizationCheckerInterface $authorizationChecker, AssignService $assignService, CommentService $commentService, BugService $bugService, UserRepository $userRep)
+    public function __construct(private AuthorizationCheckerInterface $authorizationChecker, private AssignService $assignService, private CommentService $commentService, private BugService $bugService, private StatusService $statusService)
     {
-        $this->authorizationChecker = $authorizationChecker;
-        $this->userRep = $userRep;
-        $this->bugService = $bugService;
-        $this->commentService = $commentService;
-        $this->assignService = $assignService;
     }
 
     /**
-     * @param         $activeBug  the current bug
-     * @param         $assignForm the assign form
-     * @param Request $request    request
-     *
-     * @return string|null possible error
-     *
-     * function to handle the request of the form for assigning users to a bug
-     */
-    public function handleAssignForm($activeBug, $assignForm, Request $request): ?string
-    {
-        $assignForm->handleRequest($request);
-
-        $error = null;
-
-        if ($assignForm->isSubmitted() && $assignForm->isValid()) {
-            $data = $assignForm->getData();
-
-            if (isset($data['username'])) {
-                $user = $this->userRep->findOneBy(['username' => $data['username']]);
-
-                $error = $this->assignService->add($user, $activeBug);
-            }
-
-            if (isset($data['toDelete'])) {
-                $user = $this->userRep->find($data['toDelete']);
-                $this->assignService->remove($user, $activeBug);
-            }
-        }
-
-        return $error;
-    }
-
-    /**
-     * @param Request            $request   http
-     * @param BugRepository      $bugRep    bugrep
-     * @param PaginatorInterface $paginator paginator
-     * @param int                $id        id
+     * @param Request $request http
+     * @param int     $bugID   id
      *
      * @return Response http response
      *
      * Index page that displays info about the selected bug
      */
-    #[\Symfony\Component\Routing\Attribute\Route('/{id}', name: 'main_index', requirements: ['id' => '[1-9]\d*'], defaults: ['id' => -1])]
-    public function index(Request $request, BugRepository $bugRep, PaginatorInterface $paginator, int $id): Response
+    #[\Symfony\Component\Routing\Attribute\Route('/{bugID}', name: 'main_index', requirements: ['bugID' => '[1-9]\d*'], defaults: ['bugID' => -1])]
+    public function index(Request $request, int $bugID): Response
     {
         // Shows the first bug in the list if one wasn't selected
-        $activeBug = -1 === $id ? $this->bugService->getDefaultBug() : $this->bugService->getBugByID($id);
+        $activeBug = -1 === $bugID ? $this->bugService->getDefaultBug() : $this->bugService->getBugByID($bugID);
 
         if (!isset($activeBug)) {
             return $this->redirectToRoute('not_found_index');
         }
-        $this->denyAccessUnlessGranted('view', $activeBug);
 
         // Bugs list to display in the sidebar
-        $pagination = $paginator->paginate(
-            $bugRep->queryAll(),
-            $request->query->getInt('page', 1),
-            BugRepository::PAGINATOR_ITEMS_PER_PAGE
-        );
+        $page =  $request->query->getInt('page', 1);
+        $pagination = $this->bugService->paginate($page);
 
         $attachments = $activeBug->getAttachments();
-
-        // Display comments and new comment form
         $comments = $activeBug->getComments();
-        $newComment = new Comment();
-        $commentForm = $this->createForm(CommentType::class, $newComment);
-        $commentForm->handleRequest($request);
 
-        // Handle request for creating a new comment
-        if ($this->isGranted('comment', $activeBug) && ($commentForm->isSubmitted() && $commentForm->isValid())) {
-            $this->commentService->create($commentForm->getData(), $this->getUser(), $activeBug);
-
-            return $this->redirect($request->getUri());
-        }
-
-        // Form to assign users to the bug as admin
-        $assignFormError = null;
-
-        $assignForm = $this->createFormBuilder()
-            ->add('username', TextType::class, ['allow_extra_fields' => true])
-            ->add('toDelete')
-            ->add('save', SubmitType::class)
-            ->getForm();
-
-        $statusForm = $this->createFormBuilder(null, ['allow_extra_fields' => true])
-            ->add('value', null, ['attr' => ['hidden' => 'true']])
-            ->add('saveStatus', SubmitType::class)
-            ->getForm();
-
-        if ($this->isGranted('assign', $activeBug)) {
-            $assignFormError = $this->handleAssignForm($activeBug, $assignForm, $request);
-        }
-
-        if ($this->isGranted('edit', $activeBug)) {
-            $statusForm->handleRequest($request);
-
-            if ($statusForm->isSubmitted() && $statusForm->isValid()) {
-                $data = $statusForm->getData();
-                if (isset($data['value'])) {
-                    $activeBug->setStatusInt($data['value']);
-                }
-            }
-        }
+        $commentForm = $this->createForm(CommentType::class);
+        $assignForm = $this->createForm(AssignType::class);
+        $statusForm = $this->createForm(StatusType::class);
 
         return $this->render(
             'main.html.twig',
@@ -162,11 +74,94 @@ class MainController extends AbstractController
                 'commentForm' => $commentForm->createView(),
                 'statusForm' => $statusForm->createView(),
                 'assignForm' => $assignForm->createView(),
-                'assignFormError' => $assignFormError,
+                'assignFormError' => null,
                 'comments' => $comments,
                 'attachments' => $attachments,
                 'assignedUsers' => $activeBug->getAssigned(),
             ]
         );
+    }
+
+    /**
+     * Handle assign form.
+     *
+     * @param Request $request request
+     * @param int     $bugID   bugID
+     *
+     * @return Response http
+     */
+    #[\Symfony\Component\Routing\Attribute\Route('/assign/{bugID}', name: 'assign', methods: ['POST'], requirements: ['id' => '[1-9]\d*'], defaults: ['id' => -1])]
+    #[IsGranted('ASSIGN', subject: 'bugID')]
+    public function assign(Request $request, int $bugID): Response
+    {
+        $assignForm = $this->createForm(AssignType::class);
+        $assignForm->handleRequest($request);
+
+        if ($assignForm->isSubmitted() && $assignForm->isValid()) {
+            $data = $assignForm->getData();
+            $username = $data['username'];
+            $toDelete = $data['toDelete'];
+
+            if (isset($username)) {
+                $this->assignService->add($username, $bugID);
+            }
+
+            if (isset($toDelete)) {
+                $this->assignService->remove(intval($toDelete), $bugID);
+            }
+        }
+
+        return $this->redirectToRoute('main_index', ['bugID' => $bugID]);
+    }
+
+    /**
+     * Handle changing status form request.
+     *
+     * @param Request $request request
+     * @param int     $bugID   bugID
+     *
+     * @return Response http
+     */
+    #[\Symfony\Component\Routing\Attribute\Route('/status/{bugID}', name: 'status', methods: ['POST'], requirements: ['id' => '[1-9]\d*'], defaults: ['id' => -1])]
+    #[IsGranted('CHANGE_STATUS', subject: 'bugID')]
+    public function status(Request $request, int $bugID): Response
+    {
+        $statusForm = $this->createForm(StatusType::class);
+        $statusForm->handleRequest($request);
+        $activeBug = $this->bugService->getBugByID($bugID);
+
+        if ($statusForm->isSubmitted() && $statusForm->isValid()) {
+            $data = $statusForm->getData();
+            if (isset($data['value'])) {
+                $this->statusService->set($activeBug, $data['value']);
+            }
+        }
+
+        return $this->redirectToRoute('main_index', ['bugID' => $bugID]);
+    }
+
+    /**
+     * Handle submitting new comments.
+     *
+     * @param Request $request request
+     * @param int     $bugID   bugID
+     *
+     * @return Response http
+     */
+    #[\Symfony\Component\Routing\Attribute\Route('/comment/{bugID}', name: 'comment', methods: ['POST'], requirements: ['id' => '[1-9]\d*'], defaults: ['id' => -1])]
+    #[IsGranted('COMMENT', subject: 'bugID')]
+    public function comment(Request $request, int $bugID): Response
+    {
+        $activeBug = $this->bugService->getBugByID($bugID);
+        $newComment = new Comment();
+        $commentForm = $this->createForm(CommentType::class, $newComment);
+        $commentForm->handleRequest($request);
+
+        // Handle request for creating a new comment
+        if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+            $this->commentService->create($newComment, $activeBug);
+        }
+
+        return $this->redirectToRoute('main_index', ['bugID' => $bugID]);
     }
 }

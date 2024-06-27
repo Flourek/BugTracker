@@ -7,41 +7,41 @@ namespace App\Service;
 
 use App\Entity\Bug;
 use App\Entity\Comment;
-use App\Entity\User;
 use App\Repository\CommentRepository;
+use Symfony\Component\Security\Core\Security;
 
 /**
  *  Service to save comments to database.
  */
 class CommentService
 {
-    private CommentRepository $commentRep;
-
     /**
-     * @param CommentRepository $commentRep rep
-     *                                      Constructor
+     * Constructor.
+     *
+     * @param CommentRepository $cmRep    rep
+     * @param Security          $security security
+     *
+     * @return void
      */
-    public function __construct(CommentRepository $commentRep)
+    public function __construct(private CommentRepository $cmRep, private Security $security)
     {
-        $this->commentRep = $commentRep;
     }
 
     /**
      * @param Comment $comment comment with body filled out
-     * @param User    $author  the author of the comment
      * @param Bug     $bug     the bug that was commented
      *
      * @return Comment the resulting comment
      *
      * Save comment to database
      */
-    public function create(Comment $comment, User $author, Bug $bug): Comment
+    public function create(Comment $comment, Bug $bug): Comment
     {
-        $comment->setAuthor($author);
+        $comment->setAuthor($this->security->getUser());
         $comment->setCreatedAt(new \DateTimeImmutable('now'));
         $comment->setBug($bug);
 
-        $this->commentRep->save($comment, true);
+        $this->cmRep->save($comment, true);
 
         return $comment;
     }

@@ -6,9 +6,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
 use App\Form\RegistrationFormType;
 use App\Security\AppAuthenticator;
+use App\Service\UserService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,18 +21,18 @@ use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 class RegistrationController extends AbstractController
 {
     /**
-     * @param Request                     $request            http
-     * @param UserPasswordHasherInterface $userPasswordHasher hasher
-     * @param UserAuthenticatorInterface  $userAuthenticator  auth
-     * @param AppAuthenticator            $authenticator      another auth
-     * @param UserRepository              $userRepository     user rep
+     * Function to register a new user.
+     *
+     * @param Request                     $request            request
+     * @param UserPasswordHasherInterface $userPasswordHasher userPasswordHasher
+     * @param UserService                 $userService        userService
+     * @param UserAuthenticatorInterface  $userAuthenticator  userAuthenticator
+     * @param AppAuthenticator            $authenticator      authenticator
      *
      * @return Response http
-     *
-     * Function to register a new user
      */
     #[\Symfony\Component\Routing\Attribute\Route('/register', name: 'app_register')]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, UserAuthenticatorInterface $userAuthenticator, AppAuthenticator $authenticator, UserRepository $userRepository): Response
+    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, UserService $userService, UserAuthenticatorInterface $userAuthenticator, AppAuthenticator $authenticator): Response
     {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
@@ -40,14 +40,10 @@ class RegistrationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // encode the plain password
-            $user->setPassword(
-                $userPasswordHasher->hashPassword(
-                    $user,
-                    $form->get('plainPassword')->getData()
-                )
-            );
+            $plainPassword = $form->get('plainPassword')->getData();
+            $userService->setNewPassword($user, $plainPassword);
 
-            $userRepository->save($user, true);
+            $userService->save($user);
 
             return $userAuthenticator->authenticateUser(
                 $user,

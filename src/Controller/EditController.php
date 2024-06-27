@@ -8,12 +8,12 @@ namespace App\Controller;
 use App\Entity\Bug;
 use App\Form\BugType;
 use App\Repository\BugRepository;
-use App\Repository\CommentRepository;
 use App\Service\BugService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Page where you (or admin) can edit the submitted bug.
@@ -21,30 +21,23 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 class EditController extends AbstractController
 {
     /**
+     * Index page with form to edit bug.
+     *
      * @param Request                       $request    request
-     * @param BugRepository                 $bugRep     rep
-     * @param BugService                    $bugService service
+     * @param BugRepository                 $bugRep     bugRep
+     * @param BugService                    $bugService bugService
      * @param AuthorizationCheckerInterface $auth       auth
-     * @param int                           $id         id
+     * @param int                           $bugID      bugID
      *
      * @return Response http
-     *                  Index page with form to edit bug
      */
-    #[\Symfony\Component\Routing\Attribute\Route('/edit/{id}', name: 'edit_index', requirements: ['id' => '[1-9]\d*'])]
-    public function index(Request $request, BugRepository $bugRep, BugService $bugService, AuthorizationCheckerInterface $auth, int $id): Response
+    #[\Symfony\Component\Routing\Attribute\Route('/edit/{bugID}', name: 'edit_index', requirements: ['bugID' => '[1-9]\d*'])]
+    #[IsGranted('EDIT', subject: 'bugID')]
+    public function index(Request $request, BugRepository $bugRep, BugService $bugService, AuthorizationCheckerInterface $auth, int $bugID): Response
     {
-        $bug = $bugService->getBugByID($id);
-
-        $this->denyAccessUnlessGranted('edit', $bug);
+        $bug = $bugService->getBugByID($bugID);
 
         $form = $this->createForm(BugType::class, $bug);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $bugRep->save($bug, true);
-
-            return $this->redirectToRoute('main_index', ['id' => $bug->getId()]);
-        }
 
         return $this->render('edit.html.twig', [
             'form' => $form->createView(),
@@ -53,27 +46,44 @@ class EditController extends AbstractController
     }
 
     /**
-     * @param int               $id         id
-     * @param BugRepository     $bugRep     bugRep
-     * @param CommentRepository $cmRep      cmRep
-     * @param BugService        $bugService bugService
+     * Handling form request to edit a post.
+     *
+     * @param Request    $request    request
+     * @param int        $bugID      bugID
+     * @param BugService $bugService bugService
      *
      * @return Response http
-     *                  Deletes the bug from the database
      */
-    #[\Symfony\Component\Routing\Attribute\Route('/delete/{id}', name: 'edit_delete', requirements: ['id' => '[1-9]\d*'])]
-    public function delete(int $id, BugRepository $bugRep, CommentRepository $cmRep, BugService $bugService): Response
+    #[\Symfony\Component\Routing\Attribute\Route('/edit_post/{bugID}', name: 'edit_edit', methods: ['POST'], requirements: ['bugID' => '[1-9]\d*'])]
+    #[IsGranted('EDIT', subject: 'bugID')]
+    public function edit(Request $request, int $bugID, BugService $bugService): Response
     {
-        $bug = $bugService->getBugByID($id);
+        $bug = $bugService->getBugByID($bugID);
 
-        $this->denyAccessUnlessGranted('delete', $bug);
+        $form = $this->createForm(BugType::class, $bug);
+        $form->handleRequest($request);
 
-        $comments = $bug->getComments();
-        foreach ($comments as $cm) {
-            $cmRep->remove($cm);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $bugService->edit($bug);
         }
 
-        $bugRep->remove($bug, true);
+        return $this->redirectToRoute('main_index', ['bugID' => $bugID]);
+    }
+
+    /**
+     * Deletes the bug from the database.
+     *
+     * @param int        $bugID      bugID
+     * @param BugService $bugService bugService
+     *
+     * @return Response http
+     */
+    #[\Symfony\Component\Routing\Attribute\Route('/delete/{bugID}', name: 'edit_delete', methods: ['POST'], requirements: ['bugID' => '[1-9]\d*'])]
+    #[IsGranted('DELETE', subject: 'bugID')]
+    public function delete(int $bugID, BugService $bugService): Response
+    {
+        $bug = $bugService->getBugByID($bugID);
+        $bugService->delete($bug);
 
         return $this->redirectToRoute('main_index');
     }
