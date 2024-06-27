@@ -8,6 +8,7 @@ namespace App\DataFixtures;
 use App\Entity\Attachment;
 use App\Entity\Bug;
 use App\Entity\User;
+use App\Entity\Comment;
 use App\Type\StatusEnum;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -93,6 +94,22 @@ class AppFixtures extends Fixture
                 $file->setBug($bug);
                 $manager->persist($file);
             }
+
+            for ($j = 0; $j < $randomIterations; ++$j) {
+                $user = new User();
+                $user->setUsername($this->faker->userName());
+                $user->setPassword('haslo');
+                $manager->persist($user);
+                
+                $comment = new Comment();
+                $comment->setBody($this->faker->sentence(20));
+                $comment->setAuthor($user);
+                $comment->setCreatedAt(new \DateTimeImmutable('now'));
+                $comment->setBug($bug);
+                $manager->persist($comment);
+                
+            }
+
             $manager->persist($bug);
         }
 
