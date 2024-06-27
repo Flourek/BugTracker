@@ -31,6 +31,22 @@ class AssignService
     }
 
     /**
+     * checks if user is assigned to bug.
+     *
+     * @param string $username username
+     * @param int    $bugID    bugID
+     *
+     * @return bool whether if assigned
+     */
+    public function isAssigned(string $username, int $bugID): bool
+    {
+        $user = $this->userRep->findOneBy(['username' => $username]);
+        $bug = $this->bugRep->findOneBy(['id' => $bugID]);
+
+        return $bug->isAssigned($user);
+    }
+
+    /**
      * assign new user to a bug.
      *
      * @param string $username username
@@ -45,14 +61,14 @@ class AssignService
 
         if (isset($user)) {
             if ($bug->isAssigned($user)) {
-                return 'This user is already assigned!';
+                return false;
             }
 
             $bug->addAssigned($user);
 
             $this->bugRep->save($bug, true);
         } else {
-            return "This user doesn't exist!";
+            return false;
         }
 
         return null;

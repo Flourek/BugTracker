@@ -12,13 +12,14 @@ use App\Form\StatusType;
 use App\Service\AssignService;
 use App\Service\StatusService;
 use App\Service\BugService;
-use App\Entity\Bug;
+use App\Service\UserService;
 use App\Service\CommentService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Landing page of the app. Sidebar with bugs to choose from, displays the currently selected bug.
@@ -26,14 +27,19 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 class MainController extends AbstractController
 {
     /**
-     * @param AuthorizationCheckerInterface $authorizationChecker auth
-     * @param AssignService                 $assignService        service
-     * @param CommentService                $commentService       service
-     * @param BugService                    $bugService           service
-     * @param StatusService                 $statusService        service
-     *                                                            constructor
+     * Constructor.
+     *
+     * @param AuthorizationCheckerInterface $authorizationChecker authorizationChecker
+     * @param TranslatorInterface           $translator           translator
+     * @param AssignService                 $assignService        assignService
+     * @param UserService                   $userService          userService
+     * @param CommentService                $commentService       commentService
+     * @param BugService                    $bugService           bugService
+     * @param StatusService                 $statusService        statusService
+     *
+     * @return void
      */
-    public function __construct(private AuthorizationCheckerInterface $authorizationChecker, private AssignService $assignService, private CommentService $commentService, private BugService $bugService, private StatusService $statusService)
+    public function __construct(private AuthorizationCheckerInterface $authorizationChecker, private TranslatorInterface $translator, private AssignService $assignService, private UserService $userService, private CommentService $commentService, private BugService $bugService, private StatusService $statusService)
     {
     }
 
@@ -103,6 +109,14 @@ class MainController extends AbstractController
             $toDelete = $data['toDelete'];
 
             if (isset($username)) {
+                if (!$this->userService->exists($username)) {
+                    $this->addFlash('warning', $this->translator->trans("This user doesn't exist"));
+                } elseif ($this->assignService->isAssigned($username, $bugID)) {
+                    $this->addFlash('warning', $this->translator->trans('User already assigned'));
+                }
+            }
+
+            if (isset($username)) {
                 $this->assignService->add($username, $bugID);
             }
 
@@ -115,7 +129,7 @@ class MainController extends AbstractController
     }
 
     /**
-     * Handle changing status form request.
+     * Handle changing status form.
      *
      * @param Request $request request
      * @param int     $bugID   bugID
@@ -134,6 +148,7 @@ class MainController extends AbstractController
             $data = $statusForm->getData();
             if (isset($data['value'])) {
                 $this->statusService->set($activeBug, $data['value']);
+                $this->addFlash('info', $this->translator->trans('Status has been changed'));
             }
         }
 

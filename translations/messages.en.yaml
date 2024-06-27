@@ -59,3 +59,7 @@ Resolved                                        : Resolved
 Closed                                          : Closed
 in response to                                  : in response to
 Password at least 6 characters long             : Password at least 6 characters long
+This user doesn't exist                         : This user doesn't exist
+User already assigned                           : User already assigned
+Status has been changed                         : Status has been changed
+has been deleted                                : has been deleted

@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Page where you (or admin) can edit the submitted bug.
@@ -73,17 +74,19 @@ class EditController extends AbstractController
     /**
      * Deletes the bug from the database.
      *
-     * @param int        $bugID      bugID
-     * @param BugService $bugService bugService
+     * @param int                 $bugID      bugID
+     * @param BugService          $bugService bugService
+     * @param TranslatorInterface $translator translator
      *
      * @return Response http
      */
     #[\Symfony\Component\Routing\Attribute\Route('/delete/{bugID}', name: 'edit_delete', methods: ['POST'], requirements: ['bugID' => '[1-9]\d*'])]
     #[IsGranted('DELETE', subject: 'bugID')]
-    public function delete(int $bugID, BugService $bugService): Response
+    public function delete(int $bugID, BugService $bugService, TranslatorInterface $translator): Response
     {
         $bug = $bugService->getBugByID($bugID);
         $bugService->delete($bug);
+        $this->addFlash('info', "Bug-{$bugID} ".$translator->trans('has been deleted'));
 
         return $this->redirectToRoute('main_index');
     }

@@ -65,9 +65,23 @@ class UserService
      *
      * @return User user
      */
-    public function findByUsername(string $username): User
+    public function findByUsername(string $username): ?User
     {
         return $this->userRepository->findOneByUsername($username);
+    }
+
+    /**
+     * check if user exists.
+     *
+     * @param string $username username
+     *
+     * @return User user
+     */
+    public function exists(string $username): bool
+    {
+        $user = $this->findByUsername($username);
+
+        return isset($user);
     }
 
     /**

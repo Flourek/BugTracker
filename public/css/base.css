@@ -1,0 +1,27 @@
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+
+#flashes {
+    position: absolute;
+    animation: fadeOut 3s forwards;
+    z-index: 9999;
+    display: block;
+    color: black;
+    background-color: white;
+    border: 1px solid black;
+    left:40%;
+    top:5%;
+    padding: 1rem;
+    text-align: center;
+    min-height: 50px;
+    min-width: 20%;
+}
+
+.flash-warning {
+    background-color: red !important;
+    color: white !important;
+}
